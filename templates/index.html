@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .search-container {
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        .content-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .checkbox-container {
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .abstract {
+            line-height: 1.6;
+            color: #555;
+            margin: 20px 0;
+            text-align: justify;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .nav-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+        .nav-button:disabled,
+        .nav-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .entry-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .checkbox-section {
+            margin-bottom: 20px;
+        }
+        .checkbox-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+        .checkbox-item {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input[type="radio"],
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .sub-checkboxes {
+            margin-left: 20px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .save-indicator {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Search styles */
+        .search-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .search-term-container {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .color-picker {
+            width: 40px;
+            height: 34px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 2px;
+        }
+        .remove-search {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-search:hover {
+            background-color: #c82333;
+        }
+        .add-search-button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .add-search-button:hover {
+            background-color: #0056b3;
+        }
+        .clear-highlights-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .clear-highlights-button:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Highlight styles */
+        .highlight-1 { background-color: #ffeb3b; padding: 2px 0; }
+        .highlight-2 { background-color: #81c784; padding: 2px 0; }
+        .highlight-3 { background-color: #64b5f6; padding: 2px 0; }
+        .highlight-4 { background-color: #f48fb1; padding: 2px 0; }
+        .highlight-5 { background-color: #ce93d8; padding: 2px 0; }
+        .highlight-6 { background-color: #ffab91; padding: 2px 0; }
+        .highlight-7 { background-color: #80deea; padding: 2px 0; }
+        .highlight-8 { background-color: #a5d6a7; padding: 2px 0; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Search Panel -->
+        <div class="search-container">
+            <div class="search-title">Search Keywords</div>
+            <div id="search-terms-container">
+                <div class="search-term-container" data-index="0">
+                    <input type="text" class="search-input" placeholder="Enter keyword...">
+                    <input type="color" class="color-picker" value="#ffeb3b">
+                </div>
+            </div>
+            <button class="add-search-button" onclick="addSearchTerm()">+ Add Search Term</button>
+            <button class="clear-highlights-button" onclick="clearAllHighlights()">Clear All Highlights</button>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content-container">
+            <h1 id="title-content">{{ title }}</h1>
+            <div class="abstract" id="abstract-content">
+                {{ abstract }}
+            </div>
+            <div class="navigation">
+                {% if has_prev %}
+                    <a href="{{ url_for('prev_entry', entry_id=entry_id) }}" class="nav-button">← Previous</a>
+                {% else %}
+                    <span class="nav-button disabled">← Previous</span>
+                {% endif %}
+                
+                <span class="entry-info">Entry {{ entry_id + 1 }} of {{ total_entries }}</span>
+                
+                {% if has_next %}
+                    <a href="{{ url_for('next_entry', entry_id=entry_id) }}" class="nav-button">Next →</a>
+                {% else %}
+                    <span class="nav-button disabled">Next →</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Checkbox Panel -->
+        <div class="checkbox-container">
+            <div class="checkbox-section">
+                <div class="checkbox-title">Related</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="radio" id="related-yes" name="related" value="yes" 
+                               {% if checkbox_state.related == 'yes' %}checked{% endif %}>
+                        <label for="related-yes">Yes</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="radio" id="related-no" name="related" value="no"
+                               {% if checkbox_state.related == 'no' %}checked{% endif %}>
+                        <label for="related-no">No</label>
+                    </div>
+                </div>
+                
+                <div id="sub-checkboxes" class="sub-checkboxes" 
+                     style="{% if checkbox_state.related != 'yes' %}display: none;{% endif %}">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="detect" name="sub-options" value="detect"
+                               {% if checkbox_state.detect %}checked{% endif %}>
+                        <label for="detect">Detect</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="monitor" name="sub-options" value="monitor"
+                               {% if checkbox_state.monitor %}checked{% endif %}>
+                        <label for="monitor">Monitor</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="analyze" name="sub-options" value="analyze"
+                               {% if checkbox_state.analyze %}checked{% endif %}>
+                        <label for="analyze">Analyze</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="export-button" onclick="exportToCSV()">Export to CSV</button>
+            <div class="save-indicator" id="save-indicator">✓ Saved</div>
+        </div>
+    </div>
+    
+    <script>
+        const entryId = {{ entry_id }};
+        let searchTermCount = 1;
+        const defaultColors = ['#ffeb3b', '#81c784', '#64b5f6', '#f48fb1', '#ce93d8', '#ffab91', '#80deea', '#a5d6a7'];
+        let savedSearchTerms = {{ search_terms | safe }};
+        
+        // Store original text content
+        const originalTitle = document.getElementById('title-content').textContent;
+        const originalAbstract = document.getElementById('abstract-content').textContent;
+        
+        // Load saved search terms on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            if (savedSearchTerms && savedSearchTerms.length > 0) {
+                // Clear the default empty search box
+                document.getElementById('search-terms-container').innerHTML = '';
+                
+                // Add saved search terms
+                savedSearchTerms.forEach((searchTerm, index) => {
+                    addSearchTermWithData(searchTerm.term, searchTerm.color);
+                });
+                
+                // Apply highlights
+                highlightAllTerms();
+            }
+        });
+        
+        // Save search terms to session
+        function saveSearchTermsToSession() {
+            const searchTerms = [];
+            
+            document.querySelectorAll('.search-term-container').forEach((container) => {
+                const input = container.querySelector('.search-input');
+                const colorPicker = container.querySelector('.color-picker');
+                
+                if (input.value.trim()) {
+                    searchTerms.push({
+                        term: input.value.trim(),
+                        color: colorPicker.value
+                    });
+                }
+            });
+            
+            fetch('/save_search_terms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ search_terms: searchTerms })
+            });
+        }
+        
+        // Save checkbox state whenever it changes
+        function saveCheckboxState() {
+            const related = document.querySelector('input[name="related"]:checked');
+            const detect = document.getElementById('detect').checked;
+            const monitor = document.getElementById('monitor').checked;
+            const analyze = document.getElementById('analyze').checked;
+            
+            const data = {
+                entry_id: entryId,
+                related: related ? related.value : null,
+                detect: detect,
+                monitor: monitor,
+                analyze: analyze
+            };
+            
+            fetch('/save_checkbox', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Show save indicator
+                    const indicator = document.getElementById('save-indicator');
+                    indicator.style.display = 'block';
+                    setTimeout(() => {
+                        indicator.style.display = 'none';
+                    }, 2000);
+                }
+            });
+        }
+        
+        // Handle radio button changes
+        document.querySelectorAll('input[name="related"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const subCheckboxes = document.getElementById('sub-checkboxes');
+                if (this.value === 'yes') {
+                    subCheckboxes.style.display = 'block';
+                } else {
+                    subCheckboxes.style.display = 'none';
+                    // Uncheck all sub-checkboxes when "No" is selected
+                    document.querySelectorAll('input[name="sub-options"]').forEach(cb => {
+                        cb.checked = false;
+                    });
+                }
+                saveCheckboxState();
+            });
+        });
+        
+        // Handle checkbox changes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', saveCheckboxState);
+        });
+        
+        // Export to CSV function
+        function exportToCSV() {
+            window.location.href = '/export_csv';
+        }
+        
+        // Search functionality
+        function addSearchTermWithData(term = '', color = null) {
+            const container = document.getElementById('search-terms-container');
+            const newSearchTerm = document.createElement('div');
+            newSearchTerm.className = 'search-term-container';
+            newSearchTerm.setAttribute('data-index', searchTermCount);
+            
+            const defaultColor = color || defaultColors[searchTermCount % defaultColors.length];
+            
+            newSearchTerm.innerHTML = `
+                <input type="text" class="search-input" placeholder="Enter keyword..." value="${term}">
+                <input type="color" class="color-picker" value="${defaultColor}">
+                <button class="remove-search" onclick="removeSearchTerm(this)">×</button>
+            `;
+            
+            container.appendChild(newSearchTerm);
+            searchTermCount++;
+            
+            // Add event listeners to new inputs
+            const newInput = newSearchTerm.querySelector('.search-input');
+            const newColorPicker = newSearchTerm.querySelector('.color-picker');
+            
+            newInput.addEventListener('input', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+            newColorPicker.addEventListener('change', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+        }
+        
+        function addSearchTerm() {
+            addSearchTermWithData();
+        }
+        
+        function removeSearchTerm(button) {
+            button.parentElement.remove();
+            highlightAllTerms();
+            saveSearchTermsToSession();
+        }
+        
+        function clearAllHighlights() {
+            document.getElementById('title-content').innerHTML = originalTitle;
+            document.getElementById('abstract-content').innerHTML = originalAbstract;
+            
+            // Clear all search inputs
+            document.querySelectorAll('.search-input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Clear saved search terms
+            saveSearchTermsToSession();
+        }
+        
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        function highlightText(text, searchTerms) {
+            if (searchTerms.length === 0) return text;
+            
+            // Sort terms by length (longest first) to handle overlapping matches
+            searchTerms.sort((a, b) => b.term.length - a.term.length);
+            
+            let highlightedText = text;
+            
+            searchTerms.forEach(({term, color, index}) => {
+                if (term) {
+                    const escapedTerm = escapeRegExp(term);
+                    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+                    highlightedText = highlightedText.replace(regex, 
+                        `<span class="highlight-${index + 1}" style="background-color: ${color}">$1</span>`);
+                }
+            });
+            
+            return highlightedText;
+        }
+        
+        function highlightAllTerms() {
+            const searchTerms = [];
+            
+            document.querySelectorAll('.search-term-container').forEach((container, index) => {
+                const input = container.querySelector('.search-input');
+                const colorPicker = container.querySelector('.color-picker');
+                
+                if (input.value.trim()) {
+                    searchTerms.push({
+                        term: input.value.trim(),
+                        color: colorPicker.value,
+                        index: index
+                    });
+                }
+            });
+            
+            // Reset to original text
+            let titleText = originalTitle;
+            let abstractText = originalAbstract;
+            
+            // Apply highlights
+            if (searchTerms.length > 0) {
+                titleText = highlightText(titleText, searchTerms);
+                abstractText = highlightText(abstractText, searchTerms);
+            }
+            
+            document.getElementById('title-content').innerHTML = titleText;
+            document.getElementById('abstract-content').innerHTML = abstractText;
+        }
+        
+        // Add event listeners to initial search input
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('input', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+        });
+        
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('change', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+        });
+    </script>
+</body>
+</html>
