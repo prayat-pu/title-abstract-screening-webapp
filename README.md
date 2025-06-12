@@ -188,17 +188,6 @@ Change the secret key in `app.py`:
 app.secret_key = 'your-secret-key-here'  # Change this!
 ```
 
-## API Endpoints
-
-- `GET /` - File upload page
-- `POST /upload` - Handle file upload
-- `GET /viewer` - Redirect to first entry
-- `GET /entry/<id>` - View specific entry
-- `POST /save_checkbox` - Save checkbox state
-- `POST /save_search_terms` - Save search terms
-- `GET /export_csv` - Export data to CSV
-- `GET /health` - Health check endpoint
-
 ## Features in Detail
 
 ### Dynamic Field Detection
