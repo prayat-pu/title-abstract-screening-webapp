@@ -159,7 +159,9 @@ def viewer():
     """Redirect to the first entry"""
     if df is None:
         return redirect(url_for('index'))
-    return redirect(url_for('show_entry', entry_id=0))
+
+    current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
+    return redirect(url_for('show_entry', entry_id=current_index))
 
 @app.route('/entry/<int:entry_id>')
 def show_entry(entry_id):
@@ -284,4 +286,4 @@ if __name__ == '__main__':
     print("Starting Flask application...")
     # print(f"Loaded {len(df)} entries")
     port = int(os.environ.get('PORT', 10000))
-    app.run(host='192.168.1.144', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
