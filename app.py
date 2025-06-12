@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Change this to a random secret key
+app.static_folder = 'static' 
 
 # Configuration for file upload
 UPLOAD_FOLDER = 'upload'
