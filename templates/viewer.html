@@ -48,7 +48,7 @@
                 <span class="entry-info">Entry {{ entry_id + 1 }} of {{ total_entries }}</span>
                 
                 {% if has_next %}
-                    <a href="{{ url_for('next_entry', entry_id=entry_id) }}" class="nav-button">Next →</a>
+                    <a href="{{ url_for('next_entry', entry_id=entry_id) }}" class="nav-button next">Next →</a>
                 {% else %}
                     <span class="nav-button disabled">Next →</span>
                 {% endif %}
@@ -271,8 +271,10 @@
         }
         
         function clearAllHighlights() {
+
             document.getElementById('title-content').innerHTML = originalTitle;
             document.getElementById('abstract-content').innerHTML = originalAbstract;
+            
             
             // Clear all search inputs
             document.querySelectorAll('.search-input').forEach(input => {
@@ -281,6 +283,12 @@
             
             // Clear saved search terms
             saveSearchTermsToSession();
+            
+            // remove all element in search-term-containers
+            const container = document.getElementById('search-terms-container');
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+                }
         }
         
         function escapeRegExp(string) {
