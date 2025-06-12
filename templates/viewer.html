@@ -240,7 +240,7 @@
             newSearchTerm.innerHTML = `
                 <input type="text" class="search-input" placeholder="Enter keyword..." value="${term}">
                 <input type="color" class="color-picker" value="${defaultColor}">
-                <button class="remove-search" onclick="removeSearchTerm(this)">×</button>
+                <button class="remove-search" onclick="removeSearchTerm(this,event)">×</button>
             `;
             
             container.appendChild(newSearchTerm);
@@ -264,7 +264,8 @@
             addSearchTermWithData();
         }
         
-        function removeSearchTerm(button) {
+        function removeSearchTerm(button,event) {
+            event.stopPropagation();
             button.parentElement.remove();
             highlightAllTerms();
             saveSearchTermsToSession();
