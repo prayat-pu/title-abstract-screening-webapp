@@ -367,6 +367,8 @@
         <div class="header-title">Title Abstract Screening Tool</div>
         <a href="/" class="new-file-button">Load New File</a>
         <button class="toggle-search-button" onclick="toggleSearchPanel()">🔍 Search</button>
+        <button class="export-button" onclick="exportToCSV()">Export to CSV</button>
+        
     </div>
     
     <!-- Search Panel as popup -->
@@ -448,8 +450,6 @@
                 {{ dynamic_fields|join(', ') }}
             </div>
             {% endif %}
-            
-            <button class="export-button" onclick="exportToCSV()">Export to CSV</button>
             <div class="save-indicator" id="save-indicator">✓ Saved</div>
         </div>
     </div>
