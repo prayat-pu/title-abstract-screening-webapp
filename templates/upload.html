@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .upload-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            background-color: #e9ecef;
+            border-color: #0056b3;
+        }
+        .upload-area.dragover {
+            background-color: #e3f2fd;
+            border-color: #2196F3;
+        }
+        .file-input {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .upload-button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+            transition: background-color 0.3s;
+            display: none;
+        }
+        .upload-button:hover {
+            background-color: #218838;
+        }
+        .upload-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border-radius: 5px;
+            display: none;
+        }
+        .success-message {
+            color: #155724;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 5px;
+            display: none;
+        }
+        .requirements {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .requirements h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .requirements ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .requirements li {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h1>Upload CSV File</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Drag and drop your CSV file here</p>
+            <p>or</p>
+            <button type="button" onclick="document.getElementById('fileInput').click()">
+                Browse Files
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".csv">
+        </div>
+        
+        <div class="file-info" id="fileInfo">
+            <span>Selected file: </span>
+            <span class="file-name" id="fileName"></span>
+        </div>
+        
+        <button class="upload-button" id="uploadButton" onclick="uploadFile()">
+            Upload and Process
+        </button>
+        
+        <div class="spinner" id="spinner"></div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="requirements">
+            <h3>CSV File Requirements:</h3>
+            <ul>
+                <li>File must be in CSV format (.csv)</li>
+                <li>Must contain columns: <strong>Title</strong> and <strong>Abstract</strong></li>
+                <li>Optional: <strong>Related</strong> column with "Yes" or "No" values</li>
+                <li>Additional columns with "Yes"/"No" values will be added as dynamic checkboxes</li>
+                <li>Maximum file size: 16MB</li>
+            </ul>
+            <p><strong>Example columns:</strong> Title, Abstract, Related, Detect, Monitor, Analyze</p>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const uploadButton = document.getElementById('uploadButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const spinner = document.getElementById('spinner');
+        
+        let selectedFile = null;
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        // Click on upload area
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        function handleFileSelect(file) {
+            // Check file type
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showError('Please select a CSV file');
+                return;
+            }
+            
+            // Check file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File size must be less than 16MB');
+                return;
+            }
+            
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'block';
+            uploadButton.style.display = 'block';
+            hideMessages();
+        }
+        
+        function uploadFile() {
+            if (!selectedFile) {
+                showError('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            // Show spinner and disable button
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Processing...';
+            spinner.style.display = 'block';
+            hideMessages();
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Upload and Process';
+                
+                if (data.error) {
+                    showError(data.error);
+                } else if (data.success) {
+                    let message = `Successfully loaded ${data.total_entries} entries.`;
+                    if (data.dynamic_fields && data.dynamic_fields.length > 0) {
+                        message += ` Found dynamic fields: ${data.dynamic_fields.join(', ')}`;
+                    }
+                    showSuccess(message);
+                    
+                    // Redirect to viewer after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/viewer';
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                spinner.style.display = 'none';
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Upload and Process';
+                showError('An error occurred while uploading the file');
+                console.error('Error:', error);
+            });
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+        
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
