@@ -250,17 +250,128 @@
             background-color: #f8f9fa;
             border-radius: 5px;
         }
+        .toggle-search-button {
+            background-color: #ffffff;
+            color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .search-popup {
+            position: fixed;
+            right: 20px;
+            top: 70px;
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(-10px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .search-popup.visible {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .search-popup-inner {
+            padding: 20px;
+        }
+
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                padding: 0 10px;
+            }
+
+            .search-container,
+            .checkbox-container {
+                width: 100%;
+                position: relative;
+                top: unset;
+                margin-bottom: 20px;
+            }
+
+            .content-container {
+                padding: 20px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .nav-button,
+            .entry-info {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .new-file-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .search-term-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .color-picker {
+                width: 100%;
+                height: 34px;
+            }
+
+            .remove-search {
+                align-self: flex-end;
+                margin-top: 5px;
+            }
+
+            .add-search-button,
+            .clear-highlights-button,
+            .export-button {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .sub-checkboxes {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header-bar">
-        <div class="header-title">CSV Data Viewer</div>
+        <div class="header-title">Title Abstract Screening Tool</div>
         <a href="/" class="new-file-button">Load New File</a>
+        <button class="toggle-search-button" onclick="toggleSearchPanel()">🔍 Search</button>
     </div>
     
-    <div class="main-container">
-        <!-- Search Panel -->
-        <div class="search-container">
+    <!-- Search Panel as popup -->
+    <div id="search-popup" class="search-popup hidden">
+        <div class="search-popup-inner">
             <div class="search-title">Search Keywords</div>
             <div id="search-terms-container">
                 <div class="search-term-container" data-index="0">
@@ -271,6 +382,9 @@
             <button class="add-search-button" onclick="addSearchTerm()">+ Add Search Term</button>
             <button class="clear-highlights-button" onclick="clearAllHighlights()">Clear All Highlights</button>
         </div>
+    </div>
+    
+    <div class="main-container">
         
         <!-- Main Content -->
         <div class="content-container">
@@ -339,7 +453,8 @@
             <div class="save-indicator" id="save-indicator">✓ Saved</div>
         </div>
     </div>
-    
+
+
     <script>
         const entryId = {{ entry_id }};
         const dynamicFields = {{ dynamic_fields | tojson }};
@@ -366,6 +481,20 @@
                 highlightAllTerms();
             }
         });
+
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('search-popup');
+            const toggleBtn = document.querySelector('.toggle-search-button');
+            if (!popup.contains(event.target) && !toggleBtn.contains(event.target)) {
+                popup.classList.remove('visible');
+        }});
+
+
+        function toggleSearchPanel() {
+            const popup = document.getElementById('search-popup');
+            popup.classList.toggle('visible');
+        }
+
         
         // Save search terms to session
         function saveSearchTermsToSession() {

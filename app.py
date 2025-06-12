@@ -284,4 +284,4 @@ if __name__ == '__main__':
     print("Starting Flask application...")
     # print(f"Loaded {len(df)} entries")
     port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='192.168.1.144', port=port, debug=True)

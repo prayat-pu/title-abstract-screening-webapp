@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CSV File Upload</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f5f5f5;
@@ -15,6 +19,7 @@
             align-items: center;
             min-height: 100vh;
         }
+        
         .upload-container {
             background-color: white;
             border-radius: 8px;
@@ -23,51 +28,79 @@
             max-width: 500px;
             width: 100%;
         }
+        
         h1 {
             color: #333;
             margin-bottom: 30px;
             text-align: center;
+            font-size: 28px;
         }
+        
         .upload-area {
             border: 2px dashed #007bff;
             border-radius: 8px;
-            padding: 40px;
+            padding: 40px 20px;
             text-align: center;
             background-color: #f8f9fa;
             cursor: pointer;
             transition: all 0.3s;
         }
+        
         .upload-area:hover {
             background-color: #e9ecef;
             border-color: #0056b3;
         }
+        
         .upload-area.dragover {
             background-color: #e3f2fd;
             border-color: #2196F3;
         }
+        
         .file-input {
             display: none;
         }
+        
         .upload-icon {
             font-size: 48px;
             color: #007bff;
             margin-bottom: 20px;
         }
+        
         .upload-text {
             color: #666;
             margin-bottom: 10px;
+            font-size: 16px;
         }
+        
+        .browse-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .browse-button:hover {
+            background-color: #0056b3;
+        }
+        
         .file-info {
             margin-top: 20px;
             padding: 15px;
             background-color: #e9ecef;
             border-radius: 5px;
             display: none;
+            word-break: break-all;
         }
+        
         .file-name {
             font-weight: bold;
             color: #333;
         }
+        
         .upload-button {
             background-color: #28a745;
             color: white;
@@ -81,13 +114,16 @@
             transition: background-color 0.3s;
             display: none;
         }
+        
         .upload-button:hover {
             background-color: #218838;
         }
+        
         .upload-button:disabled {
             background-color: #6c757d;
             cursor: not-allowed;
         }
+        
         .error-message {
             color: #dc3545;
             margin-top: 15px;
@@ -96,6 +132,7 @@
             border-radius: 5px;
             display: none;
         }
+        
         .success-message {
             color: #155724;
             margin-top: 15px;
@@ -104,6 +141,7 @@
             border-radius: 5px;
             display: none;
         }
+        
         .requirements {
             margin-top: 30px;
             padding: 20px;
@@ -111,18 +149,24 @@
             border-radius: 5px;
             font-size: 14px;
         }
+        
         .requirements h3 {
             margin-top: 0;
             color: #495057;
+            font-size: 18px;
         }
+        
         .requirements ul {
             margin: 10px 0;
             padding-left: 20px;
         }
+        
         .requirements li {
             margin: 5px 0;
             color: #6c757d;
+            line-height: 1.5;
         }
+        
         .spinner {
             display: none;
             width: 40px;
@@ -133,9 +177,110 @@
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
+            .upload-container {
+                padding: 20px;
+                box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+            
+            .upload-icon {
+                font-size: 36px;
+            }
+            
+            .upload-text {
+                font-size: 14px;
+            }
+            
+            .browse-button {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+            
+            .requirements {
+                padding: 15px;
+            }
+            
+            .requirements h3 {
+                font-size: 16px;
+            }
+            
+            .requirements li {
+                font-size: 13px;
+            }
+        }
+        
+        /* Small Mobile Devices */
+        @media (max-width: 375px) {
+            .upload-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .upload-area {
+                padding: 25px 10px;
+            }
+            
+            .upload-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        /* iPad and Tablet Styles */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .upload-container {
+                max-width: 600px;
+                padding: 50px;
+            }
+            
+            .upload-area {
+                padding: 50px 30px;
+            }
+            
+            .upload-icon {
+                font-size: 56px;
+            }
+        }
+        
+        /* Touch-friendly adjustments */
+        @media (hover: none) and (pointer: coarse) {
+            .upload-area:hover {
+                background-color: #f8f9fa;
+                border-color: #007bff;
+            }
+            
+            .browse-button {
+                padding: 14px 28px;
+            }
+            
+            .upload-button {
+                padding: 14px 32px;
+            }
         }
     </style>
 </head>
@@ -147,7 +292,7 @@
             <div class="upload-icon">📁</div>
             <p class="upload-text">Drag and drop your CSV file here</p>
             <p>or</p>
-            <button type="button" onclick="document.getElementById('fileInput').click()">
+            <button type="button" class="browse-button" onclick="document.getElementById('fileInput').click()">
                 Browse Files
             </button>
             <input type="file" id="fileInput" class="file-input" accept=".csv">
@@ -219,9 +364,11 @@
             }
         });
         
-        // Click on upload area
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
+        // Click on upload area (but not on button)
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                fileInput.click();
+            }
         });
         
         function handleFileSelect(file) {
