@@ -114,7 +114,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             if (savedSearchTerms && savedSearchTerms.length > 0) {
                 // Clear the default empty search box
-                document.getElementById('siearch-terms-contaner').innerHTML = '';
+                document.getElementById('search-terms-container').innerHTML = '';  // <- FIX THIS TYPO
                 
                 // Add saved search terms
                 savedSearchTerms.forEach((searchTerm, index) => {

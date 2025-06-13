@@ -282,7 +282,6 @@ h1 {
     transition: transform 0.3s ease, opacity 0.3s ease;
     transform: translateY(-10px);
     opacity: 0;
-    /* display:none; */
     pointer-events: none;
     overflow-y: auto; /* Enables scroll if needed */
 }

@@ -6,6 +6,7 @@ import json
 import re
 from werkzeug.utils import secure_filename
 import time
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Change this to a random secret key
@@ -14,6 +15,7 @@ app.static_folder = 'static'
 # Configuration for file upload
 UPLOAD_FOLDER = 'upload'
 ALLOWED_EXTENSIONS = {'csv'}
+# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -162,17 +164,7 @@ def upload_file():
 @app.route('/viewer')
 def viewer():
     """Redirect to the first entry"""
-    global df, dynamic_fields
-
     if df is None:
-        filename = session['current_file']
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        df = pd.read_csv(filepath, low_memory=False)
-        # Extract dynamic fields
-        dynamic_fields = extract_dynamic_fields(df)
-        
-        # Initialize checkbox data
-        init_checkbox_data()
         return redirect(url_for('index'))
 
     current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
@@ -181,16 +173,6 @@ def viewer():
 @app.route('/entry/<int:entry_id>')
 def show_entry(entry_id):
     """Display a single entry with navigation"""
-    global df, dynamic_fields
-    if df is None:
-        filename = session['current_file']
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        df = pd.read_csv(filepath, low_memory=False)
-        # Extract dynamic fields
-        dynamic_fields = extract_dynamic_fields(df)
-        
-        # Initialize checkbox data
-        init_checkbox_data()
 
     # Ensure entry_id is within bounds
     if entry_id < 0 or entry_id >= len(df):
@@ -261,7 +243,6 @@ def save_search_terms():
 def export_csv():
     """Export checkbox data to CSV"""
     # Create a list to store the export data
-    global df
     export_data = []
     
     for i in range(len(df)):
@@ -304,13 +285,12 @@ def prev_entry(entry_id):
 @app.route('/next/<int:entry_id>')
 def next_entry(entry_id):
     """Navigate to next entry"""
-    global df
     new_id = min(len(df) - 1, entry_id + 1)
     return redirect(url_for('show_entry', entry_id=new_id))
 
 if __name__ == '__main__':
     # Run the Flask app
     print("Starting Flask application...")
-    # print(f"Loaded {len(df)} entries")
+    print(f"Loaded {len(df)} entries")
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=True)
