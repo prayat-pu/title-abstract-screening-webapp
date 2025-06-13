@@ -146,10 +146,8 @@
                         message += ` Found dynamic fields: ${data.dynamic_fields.join(', ')}`;
                     }
                     showSuccess(message);
-                    
-                    // Redirect to viewer after 2 seconds
                     setTimeout(() => {
-                        window.location.href = '/viewer';
+                            window.location.href = '/viewer';
                     }, 2000);
                 }
             })
@@ -161,6 +159,7 @@
                 console.error('Error:', error);
             });
         }
+
         
         function showError(message) {
             errorMessage.textContent = message;
