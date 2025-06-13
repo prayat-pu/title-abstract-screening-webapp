@@ -45,11 +45,15 @@ body {
     height: fit-content;
 }
 .content-container {
-    flex: 1;
+    /* flex: 1;
     background-color: white;
     border-radius: 8px;
     padding: 30px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+    background-color: #fafafa;  /* Very light gray background */
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 .checkbox-container {
     width: 250px;
@@ -172,8 +176,9 @@ h1 {
 
 /* Search styles */
 .search-title {
-    font-weight: bold;
-    margin-bottom: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 16px;
     color: #333;
 }
 .search-term-container {
@@ -183,15 +188,21 @@ h1 {
     gap: 5px;
 }
 .search-input {
-    flex: 1;
+    /* flex: 1;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 14px; */
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;  /* Smaller font */
+    height: 26px;      /* Reduced height */
+    max-width: 160px;  /* Limit width */
 }
 .color-picker {
-    width: 40px;
-    height: 34px;
+    width: 45px;
+    height: 26px;
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
@@ -205,6 +216,10 @@ h1 {
     padding: 3px 7px;
     cursor: pointer;
     font-size: 12px;
+    width: 22px;
+    height: 22px;
+    font-size: 16px;
+    line-height: 1;
 }
 .remove-search:hover {
     background-color: #c82333;
@@ -269,6 +284,24 @@ h1 {
     margin-right: 10px;
 }
 
+.highlight-type-select {
+    padding: 4px 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 10px;   /* Smaller font */
+    background-color: white;
+    cursor: pointer;
+    width: 65px;       /* Fixed small width */
+    height: 26px;      /* Match input height */
+}
+
+.search-term-container {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
 .search-popup {
     position: fixed;
     right: 20px;
@@ -296,6 +329,115 @@ h1 {
     padding: 10px;
 }
 
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    background: #f0f0f0;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #B6B8B7;
+}
+
+body.dark-mode .header-bar {
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .content-container {
+    background-color: #252525;
+    color: #f5f5f5;
+}
+
+body.dark-mode #title-content {
+    color: #f5f5f5;
+}
+
+body.dark-mode #abstract-content {
+    color: #f5f5f5;
+}
+
+body.dark-mode .nav-button{
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+body.dark-mode .nav-button:hover:not(.disabled) {
+    background-color: #4a4a4a;
+}
+
+body.dark-mode .checkbox-container{
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color:fafafac2;
+}
+
+body.dark-mode .sub-checkboxes{
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+}
+
+body.dark-mode .dynamic-fields-info{
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+}
+
+body.dark-mode .search-popup {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .search-popup-inner {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .search-input,
+body.dark-mode .highlight-type-select {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    color: #e0e0e0;
+}
+
+body.dark-mode .checkbox-title{
+    color: #fafafac2;
+}
+
+body.dark-mode .dark-mode-toggle {
+    border-color: #555;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+    background: #3a3a3a;
+}
+
+body.dark-mode [class^="highlight-"] {
+    filter: brightness(1);  /* Reduces brightness to 70% */
+    color: #000000;
+}
+
+/*Adjust highlight visibility in dark mode
+body.dark-mode [class^="highlight-"]::after {
+    opacity: 0.9;  /* Brighter in dark mode
+    filter: brightness(0.9);
+}
+
+/* If using background highlights, darken them 
+body.dark-mode span[class^="highlight-"] {
+    opacity: 1;  /* Make the whole highlight more transparent
+}*/
 
 @media (max-width: 1024px) {
     .main-container {
