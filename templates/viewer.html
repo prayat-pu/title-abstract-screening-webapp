@@ -10,9 +10,9 @@
     <div class="header-bar">
         <div class="header-title">Title Abstract Screening Tool</div>
         <a href="/" class="new-file-button">Load New File</a>
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
         <button class="toggle-search-button" onclick="toggleSearchPanel()">🔍 Search</button>
         <button class="export-button" onclick="exportToCSV()">Export to CSV</button>
-        
     </div>
     
     <!-- Search Panel as popup -->
@@ -22,6 +22,10 @@
             <div id="search-terms-container">
                 <div class="search-term-container" data-index="0">
                     <input type="text" class="search-input" placeholder="Enter keyword...">
+                    <select class="highlight-type-select">
+                        <option value="word">Word</option>
+                        <option value="sentence">Sentence</option>
+                    </select>
                     <input type="color" class="color-picker" value="#ffeb3b">
                 </div>
             </div>
@@ -72,8 +76,7 @@
                     </div>
                 </div>
                 
-                <div id="sub-checkboxes" class="sub-checkboxes" 
-                     style="{% if checkbox_state.related != 'yes' %}display: none;{% endif %}">
+                <div id="sub-checkboxes" class="sub-checkboxes" styles="{% if checkbox_state.related != 'yes' %}display: none;{% endif %}">
                     {% for field in dynamic_fields %}
                     <div class="checkbox-item">
                         <input type="checkbox" id="{{ field.lower() }}" name="sub-options" value="{{ field.lower() }}"
@@ -103,7 +106,28 @@
         const entryId = {{ entry_id }};
         const dynamicFields = {{ dynamic_fields | tojson }};
         let searchTermCount = 1;
-        const defaultColors = ['#ffeb3b', '#81c784', '#64b5f6', '#f48fb1', '#ce93d8', '#ffab91', '#80deea', '#a5d6a7'];
+        const defaultColors = [
+                '#FFF9C4', // Soft Yellow
+                '#FFE0B2', // Light Orange
+                '#FFCDD2', // Light Pink
+                '#E1BEE7', // Light Lavender
+                '#C8E6C9', // Pale Green
+                '#B2EBF2', // Light Cyan
+                '#F8BBD0', // Light Rose
+                '#DCEDC8', // Soft Lime Green
+                '#D1C4E9', // Soft Purple
+                '#B3E5FC', // Light Blue
+                '#F0F4C3', // Light Olive
+                '#FFECB3', // Soft Gold
+                '#F5F5DC', // Beige
+                '#FFF3E0', // Creamy Orange
+                '#F1F8E9', // Very Light Green
+                '#E3F2FD', // Very Light Sky Blue
+                '#E0F7FA', // Pale Teal
+                '#FBE9E7', // Soft Coral
+                '#EDE7F6', // Pale Violet
+                '#F3E5F5'  // Light Amethyst
+            ];
         let savedSearchTerms = {{ search_terms | safe }};
         
         // Store original text content
@@ -112,19 +136,41 @@
         
         // Load saved search terms on page load
         window.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode');
+            const button = document.querySelector('.dark-mode-toggle');
+            
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                button.textContent = '☀️';
+            }
+
+            document.querySelectorAll('.highlight-type-select').forEach(select => {
+                select.addEventListener('change', () => {
+                    highlightAllTerms();
+                    saveSearchTermsToSession();
+                });
+            });
+
             if (savedSearchTerms && savedSearchTerms.length > 0) {
                 // Clear the default empty search box
-                document.getElementById('search-terms-container').innerHTML = '';  // <- FIX THIS TYPO
+                document.getElementById('search-terms-container').innerHTML = '';
                 
                 // Add saved search terms
                 savedSearchTerms.forEach((searchTerm, index) => {
-                    addSearchTermWithData(searchTerm.term, searchTerm.color);
+                if (searchTerm && searchTerm.term) {
+                    addSearchTermWithData(
+                        searchTerm.term, 
+                        searchTerm.color,
+                        searchTerm.highlightType || 'word'  // Add highlight type
+                        );
+                    }
                 });
                 
                 // Apply highlights
                 highlightAllTerms();
             }
         });
+
 
         document.addEventListener('click', function(event) {
             const popup = document.getElementById('search-popup');
@@ -133,10 +179,67 @@
                 popup.classList.remove('visible');
         }});
 
+        // Handle radio button changes
+        document.querySelectorAll('input[name="related"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const subCheckboxes = document.getElementById('sub-checkboxes');
+                if (this.value === 'yes') {
+                    subCheckboxes.style.display = 'block';
+                } else {
+                    subCheckboxes.style.display = 'none';
+                    // Uncheck all sub-checkboxes when "No" is selected
+                    document.querySelectorAll('input[name="sub-options"]').forEach(cb => {
+                        cb.checked = false;
+                    });
+                }
+                saveCheckboxState();
+            });
+        });
+
+        // Handle checkbox changes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', saveCheckboxState);
+        });
+
+        // Add event listeners to initial search input
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('input', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+        });
+        
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('change', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
+        });
+
+
+        // Dark mode toggle function
+        function toggleDarkMode() {
+            const body = document.body;
+            const button = document.querySelector('.dark-mode-toggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            // Change button icon
+            if (body.classList.contains('dark-mode')) {
+                button.textContent = '☀️';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                button.textContent = '🌙';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
 
         function toggleSearchPanel() {
             const popup = document.getElementById('search-popup');
-            popup.classList.toggle('visible');
+            if (popup) {
+                popup.classList.toggle('visible');
+            }
         }
 
         
@@ -147,11 +250,13 @@
             document.querySelectorAll('.search-term-container').forEach((container) => {
                 const input = container.querySelector('.search-input');
                 const colorPicker = container.querySelector('.color-picker');
+                const highlightSelect = container.querySelector('.highlight-type-select');
                 
                 if (input.value.trim()) {
                     searchTerms.push({
                         term: input.value.trim(),
-                        color: colorPicker.value
+                        color: colorPicker.value,
+                        highlightType: highlightSelect.value  // Add thiss
                     });
                 }
             });
@@ -196,32 +301,11 @@
                     indicator.style.display = 'block';
                     setTimeout(() => {
                         indicator.style.display = 'none';
-                    }, 2000);
+                    }, 3500);
                 }
             });
         }
         
-        // Handle radio button changes
-        document.querySelectorAll('input[name="related"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const subCheckboxes = document.getElementById('sub-checkboxes');
-                if (this.value === 'yes') {
-                    subCheckboxes.style.display = 'block';
-                } else {
-                    subCheckboxes.style.display = 'none';
-                    // Uncheck all sub-checkboxes when "No" is selected
-                    document.querySelectorAll('input[name="sub-options"]').forEach(cb => {
-                        cb.checked = false;
-                    });
-                }
-                saveCheckboxState();
-            });
-        });
-        
-        // Handle checkbox changes
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', saveCheckboxState);
-        });
         
         // Export to CSV function
         function exportToCSV() {
@@ -229,16 +313,20 @@
         }
         
         // Search functionality
-        function addSearchTermWithData(term = '', color = null) {
+        function addSearchTermWithData(term = '', color = null, highlightType = 'word') {
             const container = document.getElementById('search-terms-container');
             const newSearchTerm = document.createElement('div');
             newSearchTerm.className = 'search-term-container';
             newSearchTerm.setAttribute('data-index', searchTermCount);
             
-            const defaultColor = color || defaultColors[searchTermCount % defaultColors.length];
+            const defaultColor = color || defaultColors[searchTermCount%defaultColors.length];
             
             newSearchTerm.innerHTML = `
                 <input type="text" class="search-input" placeholder="Enter keyword..." value="${term}">
+                <select class="highlight-type-select">
+                    <option value="word" ${highlightType === 'word' ? 'selected' : ''}>Word</option>
+                    <option value="sentence" ${highlightType === 'sentence' ? 'selected' : ''}>Sentence</option>
+                </select>
                 <input type="color" class="color-picker" value="${defaultColor}">
                 <button class="remove-search" onclick="removeSearchTerm(this,event)">×</button>
             `;
@@ -249,6 +337,7 @@
             // Add event listeners to new inputs
             const newInput = newSearchTerm.querySelector('.search-input');
             const newColorPicker = newSearchTerm.querySelector('.color-picker');
+            const newSelect = newSearchTerm.querySelector('.highlight-type-select');
             
             newInput.addEventListener('input', () => {
                 highlightAllTerms();
@@ -258,10 +347,18 @@
                 highlightAllTerms();
                 saveSearchTermsToSession();
             });
+            newSelect.addEventListener('change', () => {
+                highlightAllTerms();
+                saveSearchTermsToSession();
+            });
         }
         
         function addSearchTerm() {
-            addSearchTermWithData();
+            try {
+                addSearchTermWithData();
+            } catch (error) {
+                console.error('Error adding search term:', error);
+            }
         }
         
         function removeSearchTerm(button,event) {
@@ -296,24 +393,38 @@
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
         
-        function highlightText(text, searchTerms) {
+        function highlightText(text, searchTerms, isAbstract = false) {
             if (searchTerms.length === 0) return text;
             
-            // Sort terms by length (longest first) to handle overlapping matches
-            searchTerms.sort((a, b) => b.term.length - a.term.length);
-            
-            let highlightedText = text;
-            
-            searchTerms.forEach(({term, color, index}) => {
-                if (term) {
-                    const escapedTerm = escapeRegExp(term);
-                    const regex = new RegExp(`(${escapedTerm})`, 'gi');
-                    highlightedText = highlightedText.replace(regex, 
-                        `<span class="highlight-${index + 1}" style="background-color: ${color}">$1</span>`);
-                }
-            });
-            
-            return highlightedText;
+                // First, split text into sentences
+                const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+                let processedSentences = [...sentences];
+                
+                // Process each search term
+                searchTerms.forEach(({term, color, index, highlightType}) => {
+                    if (!term) return;
+                    
+                    if (highlightType === 'sentence' && isAbstract) {
+                        // Highlight entire sentences containing the term
+                        processedSentences = processedSentences.map(sentence => {
+                            const regex = new RegExp(escapeRegExp(term), 'gi');
+                            if (regex.test(sentence)) {
+                                // Sentence contains the term, highlight the whole sentence
+                                return `<span class="highlight-${index + 1}" style="background-color: ${color}">${sentence}</span>`;
+                            }
+                            return sentence;
+                        });
+                    } else {
+                        // Highlight only the words
+                        processedSentences = processedSentences.map(sentence => {
+                            const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
+                            return sentence.replace(regex, 
+                                `<span class="highlight-${index + 1}" style="background-color: ${color}">$1</span>`);
+                        });
+                    }
+                });
+                
+                return processedSentences.join('');
         }
         
         function highlightAllTerms() {
@@ -322,11 +433,13 @@
             document.querySelectorAll('.search-term-container').forEach((container, index) => {
                 const input = container.querySelector('.search-input');
                 const colorPicker = container.querySelector('.color-picker');
+                const highlightSelect = container.querySelector('.highlight-type-select');
                 
                 if (input.value.trim()) {
                     searchTerms.push({
                         term: input.value.trim(),
                         color: colorPicker.value,
+                        highlightType: highlightSelect.value,
                         index: index
                     });
                 }
@@ -338,28 +451,13 @@
             
             // Apply highlights
             if (searchTerms.length > 0) {
-                titleText = highlightText(titleText, searchTerms);
-                abstractText = highlightText(abstractText, searchTerms);
+                titleText = highlightText(titleText, searchTerms, false);
+                abstractText = highlightText(abstractText, searchTerms, true);
             }
             
             document.getElementById('title-content').innerHTML = titleText;
             document.getElementById('abstract-content').innerHTML = abstractText;
         }
-        
-        // Add event listeners to initial search input
-        document.querySelectorAll('.search-input').forEach(input => {
-            input.addEventListener('input', () => {
-                highlightAllTerms();
-                saveSearchTermsToSession();
-            });
-        });
-        
-        document.querySelectorAll('.color-picker').forEach(picker => {
-            picker.addEventListener('change', () => {
-                highlightAllTerms();
-                saveSearchTermsToSession();
-            });
-        });
     </script>
 </body>
 </html>

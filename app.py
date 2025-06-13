@@ -15,7 +15,7 @@ app.static_folder = 'static'
 # Configuration for file upload
 UPLOAD_FOLDER = 'upload'
 ALLOWED_EXTENSIONS = {'csv'}
-# app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -285,12 +285,13 @@ def prev_entry(entry_id):
 @app.route('/next/<int:entry_id>')
 def next_entry(entry_id):
     """Navigate to next entry"""
+    global df
     new_id = min(len(df) - 1, entry_id + 1)
     return redirect(url_for('show_entry', entry_id=new_id))
 
 if __name__ == '__main__':
     # Run the Flask app
     print("Starting Flask application...")
-    print(f"Loaded {len(df)} entries")
+    # print(f"Loaded {len(df)} entries")
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=True)
