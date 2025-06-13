@@ -5,6 +5,7 @@ from datetime import datetime
 import json
 import re
 from werkzeug.utils import secure_filename
+import time
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Change this to a random secret key
@@ -52,7 +53,7 @@ def extract_dynamic_fields(df):
 # Initialize or load existing checkbox data
 def init_checkbox_data():
     """Initialize checkbox data based on loaded CSV"""
-    global checkbox_data, dynamic_fields
+    global checkbox_data, dynamic_fields, df
     
     if df is None:
         return
@@ -90,6 +91,7 @@ def index():
     return render_template('upload.html')
 
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """Handle file upload"""
@@ -110,10 +112,12 @@ def upload_file():
             
             # Save file in chunks to prevent timeout
             file.save(filepath)
+
             
             try:
                 # Load the CSV file with low_memory=False to prevent dtype warnings
                 df = pd.read_csv(filepath, low_memory=False)
+    
                 
                 # Validate required columns
                 required_cols = ['Title', 'Abstract']
@@ -158,7 +162,17 @@ def upload_file():
 @app.route('/viewer')
 def viewer():
     """Redirect to the first entry"""
+    global df, dynamic_fields
+
     if df is None:
+        filename = session['current_file']
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        df = pd.read_csv(filepath, low_memory=False)
+        # Extract dynamic fields
+        dynamic_fields = extract_dynamic_fields(df)
+        
+        # Initialize checkbox data
+        init_checkbox_data()
         return redirect(url_for('index'))
 
     current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
@@ -167,6 +181,17 @@ def viewer():
 @app.route('/entry/<int:entry_id>')
 def show_entry(entry_id):
     """Display a single entry with navigation"""
+    global df, dynamic_fields
+    if df is None:
+        filename = session['current_file']
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        df = pd.read_csv(filepath, low_memory=False)
+        # Extract dynamic fields
+        dynamic_fields = extract_dynamic_fields(df)
+        
+        # Initialize checkbox data
+        init_checkbox_data()
+
     # Ensure entry_id is within bounds
     if entry_id < 0 or entry_id >= len(df):
         return redirect(url_for('show_entry', entry_id=0))
@@ -236,6 +261,7 @@ def save_search_terms():
 def export_csv():
     """Export checkbox data to CSV"""
     # Create a list to store the export data
+    global df
     export_data = []
     
     for i in range(len(df)):
@@ -278,9 +304,9 @@ def prev_entry(entry_id):
 @app.route('/next/<int:entry_id>')
 def next_entry(entry_id):
     """Navigate to next entry"""
+    global df
     new_id = min(len(df) - 1, entry_id + 1)
     return redirect(url_for('show_entry', entry_id=new_id))
-
 
 if __name__ == '__main__':
     # Run the Flask app
