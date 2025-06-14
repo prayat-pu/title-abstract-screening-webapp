@@ -329,6 +329,11 @@ h1 {
     padding: 10px;
 }
 
+body #abstract-content [class^="highlight-"] {
+    filter: brightness(1);  /* Reduces brightness to 70% */
+    color: #000000;
+    font-weight: 550; /*bold*/
+}
 
 /* Dark mode toggle button */
 .dark-mode-toggle {

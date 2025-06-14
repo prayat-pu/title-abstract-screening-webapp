@@ -397,7 +397,8 @@
             if (searchTerms.length === 0) return text;
             
                 // First, split text into sentences
-                const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+                const sentenceRegex = /(?:[^.!?]|\d+\.\d+|(?:[A-Z]\.)+)+[.!?]+(?:\s+|$)/g;
+                const sentences = text.match(sentenceRegex) || [text];
                 let processedSentences = [...sentences];
                 
                 // Process each search term
