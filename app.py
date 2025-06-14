@@ -166,8 +166,11 @@ def viewer():
     """Redirect to the first entry"""
     if df is None:
         return redirect(url_for('index'))
-
-    current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
+    
+    try:
+        current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
+    except KeyError:
+        current_index = 0
     return redirect(url_for('show_entry', entry_id=current_index))
 
 @app.route('/entry/<int:entry_id>')
