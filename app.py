@@ -169,7 +169,7 @@ def viewer():
     
     try:
         current_index = df.loc[(df['Related']=='yes') | (df['Related']=='no')].index[-1]
-    except KeyError:
+    except:
         current_index = 0
     return redirect(url_for('show_entry', entry_id=current_index))
 
