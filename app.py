@@ -160,6 +160,36 @@ def upload_file():
     except Exception as e:
         app.logger.error(f"Upload error: {str(e)}")
         return jsonify({'error': 'Server error during upload'}), 500
+    
+@app.route('/add_dynamic_field', methods=['POST'])
+def add_dynamic_field():
+    """Add a new dynamic field"""
+    global dynamic_fields, checkbox_data
+    
+    data = request.json
+    field_name = data.get('field_name', '').strip()
+    
+    if not field_name:
+        return jsonify({'error': 'Field name cannot be empty'}), 400
+    
+    # Check if field already exists
+    if field_name in dynamic_fields:
+        return jsonify({'error': 'Field already exists'}), 400
+    
+    # Add to dynamic fields
+    dynamic_fields.append(field_name)
+    
+    # Initialize the field for all existing entries
+    for entry_id in range(len(df)):
+        if entry_id not in checkbox_data:
+            checkbox_data[entry_id] = {'related': None}
+        checkbox_data[entry_id][field_name.lower()] = False
+    
+    return jsonify({
+        'success': True,
+        'field_name': field_name,
+        'dynamic_fields': dynamic_fields
+    })
 
 @app.route('/viewer')
 def viewer():
